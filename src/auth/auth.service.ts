@@ -7,14 +7,18 @@ import {
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcryptjs';
+import { RedisOperationsService } from 'src/redis/redis.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private userService: UsersService) {}
+  constructor(
+    private userService: UsersService,
+    private redisOperationsService: RedisOperationsService,
+  ) {}
 
   async login(userDto: CreateUserDto) {
     await this.validateUser(userDto);
-    const users = await this.userService.getRandomUsers();
+    const users = await this.redisOperationsService.getUsers();
     return users;
   }
 
@@ -30,7 +34,7 @@ export class AuthService {
       ...userDto,
       password: hashPassword,
     });
-    const users = await this.userService.getRandomUsers();
+    const users = await this.redisOperationsService.getUsers();
     return users;
   }
 
